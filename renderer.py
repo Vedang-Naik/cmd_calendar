@@ -86,11 +86,9 @@ def renderYMMonth(x, y, YM_WIDTH, YM_HEIGHT, monthCalendar, monthInd):
 	YM_HEIGHT += x - 1
 
 	printAt(x, y, topLine)
-	x += 1
 	printAt(x, y, monthName)
-	x += 1
 	printAt(x, y, padding)
-	x += 1
+	x += 3
 	for i in range(x, x + (numPaddingLines // 2)):
 		printAt(x, y, padding)
 		x += 1
@@ -133,13 +131,42 @@ def renderYMYear(yearCalendar, CMD_WIDTH, CMD_HEIGHT, headerText):
 			renderYMMonth(x, y, YM_WIDTH, YM_HEIGHT, yearCalendar[j][i], i+4*j)
 	print()
 
-def renderDMDay(dayCalendar, CMD_WIDTH, CMD_HEIGHT):
+def renderDMDay(dayCalendar, CMD_WIDTH, CMD_HEIGHT, headerText):
 	topLine = "|" + u"\u0305" * (CMD_WIDTH - 2) + "|"
 	bottomLine = "|" + "_" * (CMD_WIDTH - 2) + "|"
 	padding = "|" + " " * (CMD_WIDTH - 2) + "|"
 
+	renderHeader(CMD_WIDTH, headerText)
+
 	print(topLine)
-	print("|" + dayCalendar.strftime("%d %b %Y").center(CMD_WIDTH - 2) + "|")
-	for i in range(2, CMD_HEIGHT - 2):
-		print(padding)
+	if dayCalendar:
+		for i in range(1, len(dayCalendar) + 1):
+			eventPrint = str(i) + ". " + dayCalendar[i-1].strip()
+			print("| " + eventPrint.center(CMD_WIDTH - 3) + "|")
+		for i in range(CMD_HEIGHT - 6 - len(dayCalendar)):
+			print(padding)
+	else:
+		print("|" + "No events today".center(CMD_WIDTH - 2) + "|")
+		for i in range(CMD_HEIGHT - 6):
+			print(padding)
 	print(bottomLine)
+
+def renderEventList(EVENTS, CMD_WIDTH, CMD_HEIGHT, headerText):
+	CMD_WIDTH -= CMD_WIDTH % 5
+	EV_WIDTH = (CMD_WIDTH - 10) // 5
+
+	topLine = "|" + u"\u0305" * (CMD_WIDTH - 2) + "|"
+	bottomLine = "|" + "_" * (CMD_WIDTH - 2) + "|"
+	padding = "|" + " " * (CMD_WIDTH - 2) + "|"
+
+	renderHeader(CMD_WIDTH, headerText)
+
+	semiHeader = "|" + "Sl. No".center(8) + "|"
+	semiHeader += "|" + "Date".center(EV_WIDTH - 2) + "|"
+	for i in range(1, 5):
+		semiHeader += "|" + ("Event " + str(i)).center(EV_WIDTH - 2) + "|"
+	print(semiHeader)
+	print(topLine)
+
+	for event in EVENTS:
+		pass
