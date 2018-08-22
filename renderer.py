@@ -32,20 +32,30 @@ def renderMainPage(CMD_WIDTH, CMD_HEIGHT):
 		print(padding)
 	print(bottomLine, end="")
 
-def renderMMDay(x, y, MM_WIDTH, MM_HEIGHT, day):
+def renderMMDay(x, y, MM_WIDTH, MM_HEIGHT, dayInfo):
 	topLine = "|" + u'\u0305' * (MM_WIDTH - 2) + "|"
 	bottomLine = "|" + "_" * (MM_WIDTH - 2) + "|"
-	if day != 0:		
-		padding = "|" + " " * (MM_WIDTH - 2) + "|"
-		date = "|" + str(day).center(MM_WIDTH - 2) + "|"
 
-		printAt(x, y, topLine)
+	printAt(x, y, topLine)
+	if dayInfo:
+		padding = "|" + " " * (MM_WIDTH - 2) + "|"
+		date = ""
+		events = ""
+		if type(dayInfo) is tuple:
+			date = "|" + str(dayInfo[0].day).center(MM_WIDTH - 2) + "|"
+			events = str(dayInfo[1]) + " event(s)"
+			events = "|" + events.center(MM_WIDTH - 2) + "|"
+		else:
+			date = "|" + str(dayInfo.day).center(MM_WIDTH - 2) + "|"
+			events = "|" + " " * (MM_WIDTH - 2) + "|"
+		
 		printAt(x + 1, y, date)
-		for i in range(2, MM_HEIGHT -1):
+		printAt(x + 2, y, padding)
+		printAt(x + 3, y, events)
+		for i in range(4, MM_HEIGHT - 1):
 			printAt(x + i, y, padding)
 	else:
 		crosses = "| " + "x" * (MM_WIDTH - 4) + " |"
-		printAt(x, y, topLine)
 		for i in range(1, MM_HEIGHT - 1):
 			printAt(x + i, y, crosses)
 	printAt(x + MM_HEIGHT - 1, y, bottomLine)
@@ -73,6 +83,7 @@ def renderYMMonth(x, y, YM_WIDTH, YM_HEIGHT, monthCalendar, monthInd):
 	monthName = "|" + month_name[monthInd + 1].center(YM_WIDTH - 2) + "|"
 
 	numPaddingLines = YM_HEIGHT - 9
+	YM_HEIGHT += x - 1
 
 	printAt(x, y, topLine)
 	x += 1
@@ -111,15 +122,24 @@ def renderYMYear(yearCalendar, CMD_WIDTH, CMD_HEIGHT, headerText):
 
 	renderHeader(CMD_WIDTH, headerText)
 
-	# Renders the day names below the header.
 	dayString = ""
 	for day in day_abbr:
 		dayString += day.center((YM_WIDTH - 2 - (YM_WIDTH % 7)) // 7)
 	dayString = "|" + dayString.center(YM_WIDTH - 2) + "|"
 	print(dayString * 4)
-
-	# Renders the name and calendar of each month.	
+	
 	for i, y in zip(range(0, 4), range(1, CMD_WIDTH, YM_WIDTH)):
 		for j, x in zip(range(0, 3), range(5, CMD_HEIGHT, YM_HEIGHT)):
 			renderYMMonth(x, y, YM_WIDTH, YM_HEIGHT, yearCalendar[j][i], i+4*j)
 	print()
+
+def renderDMDay(dayCalendar, CMD_WIDTH, CMD_HEIGHT):
+	topLine = "|" + u"\u0305" * (CMD_WIDTH - 2) + "|"
+	bottomLine = "|" + "_" * (CMD_WIDTH - 2) + "|"
+	padding = "|" + " " * (CMD_WIDTH - 2) + "|"
+
+	print(topLine)
+	print("|" + dayCalendar.strftime("%d %b %Y").center(CMD_WIDTH - 2) + "|")
+	for i in range(2, CMD_HEIGHT - 2):
+		print(padding)
+	print(bottomLine)
