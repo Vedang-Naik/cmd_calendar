@@ -1,5 +1,6 @@
-from calendar import month_name, day_name, day_abbr, Calendar
+import calendar
 from pyfiglet import Figlet
+import os
 
 def printAt(x, y, text):
 	print("\033[" + str(x) + ";" + str(y) + "H" + text, end="")
@@ -69,7 +70,7 @@ def renderMMMonth(monthCalendar, CMD_WIDTH, CMD_HEIGHT, headerText):
 	MM_HEIGHT = CMD_HEIGHT // 5
 
 	renderHeader(CMD_WIDTH, headerText)
-	for day in day_name:
+	for day in calendar.day_name:
 		print("|" + day.center(MM_WIDTH - 2, u"\u00b7") + "|", end="")
 	for x, week in zip(range(5, CMD_HEIGHT+1, MM_HEIGHT), monthCalendar):
 		for y, day in zip(range(1, CMD_WIDTH, MM_WIDTH), week):
@@ -80,7 +81,7 @@ def renderYMMonth(x, y, YM_WIDTH, YM_HEIGHT, monthCalendar, monthInd):
 	topLine = "|" + u"\u0305" * (YM_WIDTH - 2) + "|"
 	bottomLine = "|" + "_" * (YM_WIDTH - 2) + "|"
 	padding = "|" + " " * (YM_WIDTH - 2) + "|"
-	monthName = "|" + month_name[monthInd + 1].center(YM_WIDTH - 2) + "|"
+	monthName = "|" + calendar.month_name[monthInd + 1].center(YM_WIDTH - 2) + "|"
 
 	numPaddingLines = YM_HEIGHT - 9
 	YM_HEIGHT += x - 1
@@ -121,7 +122,7 @@ def renderYMYear(yearCalendar, CMD_WIDTH, CMD_HEIGHT, headerText):
 	renderHeader(CMD_WIDTH, headerText)
 
 	dayString = ""
-	for day in day_abbr:
+	for day in calendar.day_abbr:
 		dayString += day.center((YM_WIDTH - 2 - (YM_WIDTH % 7)) // 7)
 	dayString = "|" + dayString.center(YM_WIDTH - 2) + "|"
 	print(dayString * 4)
@@ -131,42 +132,45 @@ def renderYMYear(yearCalendar, CMD_WIDTH, CMD_HEIGHT, headerText):
 			renderYMMonth(x, y, YM_WIDTH, YM_HEIGHT, yearCalendar[j][i], i+4*j)
 	print()
 
-def renderDMDay(dayCalendar, CMD_WIDTH, CMD_HEIGHT, headerText):
-	topLine = "|" + u"\u0305" * (CMD_WIDTH - 2) + "|"
-	bottomLine = "|" + "_" * (CMD_WIDTH - 2) + "|"
-	padding = "|" + " " * (CMD_WIDTH - 2) + "|"
+def renderEventSearchBox(searchedDay, monthCalendar, eventList, CMD_WIDTH, CMD_HEIGHT):
+	CMD_WIDTH -= CMD_WIDTH % 7
+	CMD_HEIGHT -= 5
+	CMD_HEIGHT -= CMD_HEIGHT % 5
 
-	renderHeader(CMD_WIDTH, headerText)
+	MM_WIDTH = CMD_WIDTH // 7
+	MM_HEIGHT = CMD_HEIGHT // 5
 
-	print(topLine)
-	if dayCalendar:
-		for i in range(1, len(dayCalendar) + 1):
-			eventPrint = str(i) + ". " + dayCalendar[i-1].strip()
-			print("| " + eventPrint.center(CMD_WIDTH - 3) + "|")
-		for i in range(CMD_HEIGHT - 6 - len(dayCalendar)):
-			print(padding)
+	sx, sy = 0, 0
+	for x, week in zip(range(5, CMD_HEIGHT + 1, MM_HEIGHT), monthCalendar):
+		for y, day in zip(range(1, CMD_WIDTH, MM_WIDTH), week):			
+			if type(day) is tuple and day[0] == searchedDay:
+				sx = x
+				sy = y
+				break
+	sx -= 3
+	MM_WIDTH += 5
+	MM_HEIGHT += 3
+
+	topLine = "|" + u"\u0305" * (MM_WIDTH - 2) + "|"
+	bottomLine = "|" + "_" * (MM_WIDTH - 2) + "|"
+	padding = "|" + " " * (MM_WIDTH - 2) + "|"
+	date = "|" + str(searchedDay.day).center(MM_WIDTH - 2) + "|"
+	if len(eventList) <= MM_HEIGHT - 4:
+		eventList.extend([" "] * (MM_HEIGHT - 4 - len(eventList)))
+	leftOver = len(eventList) - (MM_HEIGHT - 4)
+
+	printAt(sx, sy, topLine)
+	printAt(sx+1, sy, date)
+	sx += 1
+	for i in range(MM_HEIGHT - 4):	
+		sx += 1
+		event = "|" + eventList[i][:MM_WIDTH - 4].center(MM_WIDTH - 2) + "|"
+		printAt(sx, sy, event)
+	sx += 1
+	if leftOver > 0:
+		temp = "+" + str(leftOver) + " more"
+		printAt(sx, sy, "|" + temp.center(MM_WIDTH - 2) + "|")
 	else:
-		print("|" + "No events today".center(CMD_WIDTH - 2) + "|")
-		for i in range(CMD_HEIGHT - 6):
-			print(padding)
-	print(bottomLine)
-
-def renderEventList(EVENTS, CMD_WIDTH, CMD_HEIGHT, headerText):
-	CMD_WIDTH -= CMD_WIDTH % 5
-	EV_WIDTH = (CMD_WIDTH - 10) // 5
-
-	topLine = "|" + u"\u0305" * (CMD_WIDTH - 2) + "|"
-	bottomLine = "|" + "_" * (CMD_WIDTH - 2) + "|"
-	padding = "|" + " " * (CMD_WIDTH - 2) + "|"
-
-	renderHeader(CMD_WIDTH, headerText)
-
-	semiHeader = "|" + "Sl. No".center(8) + "|"
-	semiHeader += "|" + "Date".center(EV_WIDTH - 2) + "|"
-	for i in range(1, 5):
-		semiHeader += "|" + ("Event " + str(i)).center(EV_WIDTH - 2) + "|"
-	print(semiHeader)
-	print(topLine)
-
-	for event in EVENTS:
-		pass
+		printAt(sx, sy, padding)
+	printAt(sx+1, sy, bottomLine)
+	print("\n" * (CMD_HEIGHT+3 - sx))
