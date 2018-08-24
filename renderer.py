@@ -1,6 +1,5 @@
 import calendar
 from pyfiglet import Figlet
-import os
 
 def printAt(x, y, text):
 	print("\033[" + str(x) + ";" + str(y) + "H" + text, end="")
@@ -19,7 +18,7 @@ def renderMainPage(CMD_WIDTH, CMD_HEIGHT):
 	bottomLine = "|" + "_" * (CMD_WIDTH - 2) + "|"
 	padding = "|" + " " * (CMD_WIDTH - 2) + "|"
 
-	f = Figlet(font="slant")
+	f = Figlet(font="smkeyboard")
 	string = str(f.renderText("CMD Calendar"))
 	splits = ["|" + a.center(CMD_WIDTH - 2) + "|" for a in string.split("\n")]
 	CMD_HEIGHT -= len(splits)
@@ -64,10 +63,10 @@ def renderMMDay(x, y, MM_WIDTH, MM_HEIGHT, dayInfo):
 def renderMMMonth(monthCalendar, CMD_WIDTH, CMD_HEIGHT, headerText):
 	CMD_WIDTH -= CMD_WIDTH % 7
 	CMD_HEIGHT -= 5
-	CMD_HEIGHT -= CMD_HEIGHT % 5
+	CMD_HEIGHT -= CMD_HEIGHT % len(monthCalendar)
 
 	MM_WIDTH = CMD_WIDTH // 7
-	MM_HEIGHT = CMD_HEIGHT // 5
+	MM_HEIGHT = CMD_HEIGHT // len(monthCalendar)
 
 	renderHeader(CMD_WIDTH, headerText)
 	for day in calendar.day_name:
@@ -87,8 +86,8 @@ def renderYMMonth(x, y, YM_WIDTH, YM_HEIGHT, monthCalendar, monthInd):
 	YM_HEIGHT += x - 1
 
 	printAt(x, y, topLine)
-	printAt(x, y, monthName)
-	printAt(x, y, padding)
+	printAt(x + 1, y, monthName)
+	printAt(x + 2, y, padding)
 	x += 3
 	for i in range(x, x + (numPaddingLines // 2)):
 		printAt(x, y, padding)
@@ -114,7 +113,7 @@ def renderYMMonth(x, y, YM_WIDTH, YM_HEIGHT, monthCalendar, monthInd):
 def renderYMYear(yearCalendar, CMD_WIDTH, CMD_HEIGHT, headerText):
 	CMD_WIDTH -= CMD_WIDTH % 4
 	CMD_HEIGHT -= 5
-	CMD_HEIGHT -= (CMD_HEIGHT % 3)
+	CMD_HEIGHT -= CMD_HEIGHT % 3
 
 	YM_WIDTH = CMD_WIDTH // 4
 	YM_HEIGHT = CMD_HEIGHT // 3
@@ -135,10 +134,10 @@ def renderYMYear(yearCalendar, CMD_WIDTH, CMD_HEIGHT, headerText):
 def renderEventSearchBox(searchedDay, monthCalendar, eventList, CMD_WIDTH, CMD_HEIGHT):
 	CMD_WIDTH -= CMD_WIDTH % 7
 	CMD_HEIGHT -= 5
-	CMD_HEIGHT -= CMD_HEIGHT % 5
+	CMD_HEIGHT -= CMD_HEIGHT % len(monthCalendar)
 
 	MM_WIDTH = CMD_WIDTH // 7
-	MM_HEIGHT = CMD_HEIGHT // 5
+	MM_HEIGHT = CMD_HEIGHT // len(monthCalendar)
 
 	sx, sy = 0, 0
 	for x, week in zip(range(5, CMD_HEIGHT + 1, MM_HEIGHT), monthCalendar):
