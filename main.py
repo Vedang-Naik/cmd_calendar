@@ -8,7 +8,7 @@ import datetime
 import numpy
 import time
 
-from renderer import *
+from renderer import renderMainPage, renderMMMonth, renderYMYear, renderEventSearchBox, renderError
 
 # Modifies the default calendar list returned by Calendar.monthdatescalendar().
 def addEventToMonthCalendar(monthCalendar, month):
@@ -45,7 +45,7 @@ def parseCommand(command):
 	
 	try:
 		return vars(parser.parse_args(shlex.split(command)))
-	except:
+	except:		
 		return False # If parsing fails, return false so that execCommand() can catch and quit.
 
 # Executes parsed commands.
@@ -118,7 +118,7 @@ renderMainPage(CMD_WIDTH, CMD_HEIGHT)
 time.sleep(1)
 
 # Default command is the current month.
-command = "display -m 09-2019"
+command = "display -m"
 execCommand(parseCommand(command))
 while True:
 	command = input("calendar>")

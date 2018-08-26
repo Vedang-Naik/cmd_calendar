@@ -18,19 +18,46 @@ def renderMainPage(CMD_WIDTH, CMD_HEIGHT):
 	bottomLine = "|" + "_" * (CMD_WIDTH - 2) + "|"
 	padding = "|" + " " * (CMD_WIDTH - 2) + "|"
 
-	f = Figlet(font="smkeyboard")
+	f = Figlet(font="slant")
 	string = str(f.renderText("CMD Calendar"))
 	splits = ["|" + a.center(CMD_WIDTH - 2) + "|" for a in string.split("\n")]
 	CMD_HEIGHT -= len(splits)
 
 	print(topLine)
-	for i in range(1, CMD_HEIGHT // 2):
+	for _ in range(1, CMD_HEIGHT // 2):
 		print(padding)
 	for a in splits:
 		print(a, end="")
-	for i in range(CMD_HEIGHT // 2, CMD_HEIGHT - 1):
+	for _ in range(CMD_HEIGHT // 2, CMD_HEIGHT - 1):
 		print(padding)
 	print(bottomLine, end="")
+
+def renderError(CMD_WIDTH, CMD_HEIGHT, errorMessage):
+	topLine = "|" + u"\u0305" * (CMD_WIDTH - 2) + "|"
+	bottomLine = "|" + "_" * (CMD_WIDTH - 2) + "|"
+	padding = "|" + " " * (CMD_WIDTH - 2) + "|"
+
+	msgTopLine = "|" + ("|" + u"\u0305" * (CMD_WIDTH // 2) + "|").center(CMD_WIDTH - 2) + "|"
+	msgBottomLine = "|" + ("|" + "_" * (CMD_WIDTH // 2) + "|").center(CMD_WIDTH - 2) + "|"
+	msg = "|" + ("|" + errorMessage.center(CMD_WIDTH // 2) + "|").center(CMD_WIDTH - 2) + "|"
+
+	f = Figlet(font="poison")
+	string = str(f.renderText("Error"))
+	splits = ["|" + a.center(CMD_WIDTH - 2) + "|" for a in string.split("\n")]
+
+	CMD_HEIGHT -= len(splits) + 6
+	
+	print(topLine)
+	for _ in range(CMD_HEIGHT // 2):
+		print(padding)
+	for a in splits:
+		print(a, end="")
+	print(msgTopLine)
+	print(msg)
+	print(msgBottomLine)
+	for _ in range(CMD_HEIGHT // 2):
+		print(padding)
+	print(bottomLine)
 
 def renderMMDay(x, y, MM_WIDTH, MM_HEIGHT, dayInfo):
 	topLine = "|" + u'\u0305' * (MM_WIDTH - 2) + "|"
@@ -89,10 +116,10 @@ def renderYMMonth(x, y, YM_WIDTH, YM_HEIGHT, monthCalendar, monthInd):
 	printAt(x + 1, y, monthName)
 	printAt(x + 2, y, padding)
 	x += 3
-	for i in range(x, x + (numPaddingLines // 2)):
+	for _ in range(x, x + (numPaddingLines // 2)):
 		printAt(x, y, padding)
 		x += 1
-	for week, i in zip(monthCalendar, range(x, x + len(monthCalendar))):
+	for week, _ in zip(monthCalendar, range(x, x + len(monthCalendar))):
 		dayString = ""
 		for day in week:
 			if day == 0:
@@ -102,10 +129,10 @@ def renderYMMonth(x, y, YM_WIDTH, YM_HEIGHT, monthCalendar, monthInd):
 		dayString = "|" + dayString.center(YM_WIDTH - 2) + "|"
 		printAt(x, y, dayString)
 		x += 1
-	for i in range(0, 6-len(monthCalendar)):
+	for _ in range(0, 6-len(monthCalendar)):
 		printAt(x, y, padding)
 		x += 1
-	for i in range(x, YM_HEIGHT):
+	for _ in range(x, YM_HEIGHT):
 		printAt(x, y, padding)
 		x += 1
 	printAt(x, y, bottomLine)
