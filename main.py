@@ -63,13 +63,37 @@ def execCommand(command):
 		headerText = "Displaying "
 
 		if dispm is not None:
-			date = list(map(int, dispm.split("-")))
+			try:
+				date = list(map(int, dispm.split("-")))
+				if len(date) != 2:
+					renderError(CMD_WIDTH, CMD_HEIGHT, "You have either not provided either the month or year.")
+					return None
+			except:
+				renderError(CMD_WIDTH, CMD_HEIGHT, "Perhaps you did not use a '-' to seperate the month and year?")
+				return None
+			
 			month, year = date
+			if not 1 <= month <= 12:
+				renderError(CMD_WIDTH, CMD_HEIGHT, "Enter a month number between 1 and 12, inclusive.")
+				return None
+			elif year <= 0:
+				renderError(CMD_WIDTH, CMD_HEIGHT, "Please enter a positive integer year")
+				return None
+
 			headerText += calendar.month_name[month] + " " + str(year)
 			monthCalendar = calendar.Calendar(0).monthdatescalendar(year, month)
 			renderMMMonth(addEventToMonthCalendar(monthCalendar, month), CMD_WIDTH, CMD_HEIGHT, headerText)
 		elif dispy is not None:
-			year = int(dispy)
+			try:
+				year = int(dispy)
+			except:
+				renderError(CMD_WIDTH, CMD_HEIGHT, "Please enter valid numbers.")
+				return None
+			
+			if year <= 0:
+				renderError(CMD_WIDTH, CMD_HEIGHT, "Please enter a positive integer year.")
+				return None
+
 			headerText += str(year)
 			yearCalendar = numpy.reshape(calendar.Calendar(0).yeardayscalendar(year), (3, 4))
 			renderYMYear(yearCalendar, CMD_WIDTH, CMD_HEIGHT, headerText)
@@ -79,7 +103,12 @@ def execCommand(command):
 		search = command["s"]
 
 		if add is not None:
-			date = list(map(int, add[0].split("-")))
+			try:
+				date = list(map(int, add[0].split("-")))
+			except:
+				renderError(CMD_WIDTH, CMD_HEIGHT, "Perhaps you did not use a '-' to seperate the month and year?")
+				return None
+			
 			date = datetime.date(date[2], date[1], date[0])
 			event = add[1].strip()
 			if date in EVENTS.keys():
