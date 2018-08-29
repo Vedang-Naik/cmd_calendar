@@ -51,27 +51,27 @@ def parseCommand(command):
     subparsers = parser.add_subparsers(dest="subcommand")
 
     # This subcommand group will handle the displaying of months and years. 
-    display = subparsers.add_parser("display")
+    display = subparsers.add_parser("display", help="Display the calendar of a month or year.")
     display_group = display.add_mutually_exclusive_group()
     # display -m will display the calendar for a given month.
     # display -m will default to the present day if no argumets are provided.
-    display_group.add_argument("-m", nargs="?", const=datetime.datetime.now().strftime("%m-%Y"), type=str)
+    display_group.add_argument("-m", nargs="?", const=datetime.datetime.now().strftime("%m-%Y"), type=str, help="Display the calendar of a specific month, input as mm-yyyy.", metavar="MONTH-DATE")
     # display -y will display the calendar for a given year.
     # display -y will default to present year if no arguments are provided.
-    display_group.add_argument("-y", nargs="?", const=datetime.datetime.now().strftime("%Y"), type=str)
+    display_group.add_argument("-y", nargs="?", const=datetime.datetime.now().strftime("%Y"), type=str, help="Display the calendar of a specific year, input as yyyy.", metavar="YEAR")
         
     # This subcommand group will handles various actions concerning events.
-    event = subparsers.add_parser("event")
+    event = subparsers.add_parser("event", help="Add, delete and search for events.")
     event_group = event.add_mutually_exclusive_group()
     # Used to add events to specific dates.
-    event_group.add_argument("-a", nargs=2)
+    event_group.add_argument("-a", nargs=2, help="Add an event to a particular day.", metavar=("DATE", "EVENT"))
     # event -s will display all the events for a particular day.
     # event -s will default to the present day if no argumets are provided.
-    event_group.add_argument("-s", nargs="?", const=datetime.datetime.now().strftime("%d-%m-%Y"), type=str)
+    event_group.add_argument("-s", nargs="?", const=datetime.datetime.now().strftime("%d-%m-%Y"), type=str, help="Search for events on a specific day.", metavar=("DATE"))
 
     # This subcommand will close the application safely.
-    exit = subparsers.add_parser("exit")
-
+    exit = subparsers.add_parser("exit", help="Exit the application safely.")
+    
     # If parsing fails, return false so that execCommand() can catch and quit.
     try:
         return vars(parser.parse_args(shlex.split(command)))
