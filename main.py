@@ -63,11 +63,13 @@ def parseCommand(command):
     # This subcommand group will handles various actions concerning events.
     event = subparsers.add_parser("event", help="Add, delete and search for events.")
     event_group = event.add_mutually_exclusive_group()
-    # Used to add events to specific dates.
+    # event -a will add events to specific dates.
     event_group.add_argument("-a", nargs=2, help="Add an event to a particular day.", metavar=("DATE", "EVENT"))
     # event -s will display all the events for a particular day.
     # event -s will default to the present day if no argumets are provided.
     event_group.add_argument("-s", nargs="?", const=datetime.datetime.now().strftime("%d-%m-%Y"), type=str, help="Search for events on a specific day.", metavar=("DATE"))
+    # event -d will delete an event from a day.
+    event_group.add_argument("-d", nargs=2, help="Delete an event on a specific day.", metavar=("DATE", "EVENT_INDEX"))
 
     # This subcommand will close the application safely.
     exit = subparsers.add_parser("exit", help="Exit the application safely.")
@@ -141,6 +143,7 @@ def execCommand(command):
     elif command["subcommand"] == "event":
         add = command["a"]
         search = command["s"]
+        delete = command["d"]
 
         if add is not None:
             # Same code as dispm, please refer above.
@@ -150,10 +153,13 @@ def execCommand(command):
                     renderError(CMD_WIDTH, CMD_HEIGHT, "You have not provided a valid day, month or year.")
                     return None
                 day, month, year = date
-                if not (1 <= day <= 31 and 1 <= month <= 12 and year > 0):
-                    renderError(CMD_WIDTH, CMD_HEIGHT, "Provides days between 0-32, months between 0-13 and positive years.")
+                
+                # Make sure that the date entered is valid i.e. catch February 30th, etc.
+                try:
+                    date = datetime.date(year, month, day)
+                except:
+                    renderError(CMD_WIDTH, CMD_HEIGHT, "Your date, like February 30th, is invalid.")
                     return None
-                date = datetime.date(year, month, day)
             except:
                 renderError(CMD_WIDTH, CMD_HEIGHT, "Perhaps you did not use a '-' to seperate the month and year?")
                 return None
@@ -181,10 +187,11 @@ def execCommand(command):
                     renderError(CMD_WIDTH, CMD_HEIGHT, "You have not provided a valid day, month or year.")
                     return None
                 day, month, year = date               
-                if not (1 <= day <= 31 and 1 <= month <= 12 and year > 0):
-                    renderError(CMD_WIDTH, CMD_HEIGHT, "Provides days between 0-32, months between 0-13 and positive years.")
+                try:
+                    date = datetime.date(year, month, day)
+                except:
+                    renderError(CMD_WIDTH, CMD_HEIGHT, "Your date, like February 30th, is invalid.")
                     return None
-                date = datetime.date(year, month, day)
             except:
                 renderError(CMD_WIDTH, CMD_HEIGHT, "Perhaps you did not use a '-' to seperate the day, month and year?")
                 return None
@@ -196,6 +203,38 @@ def execCommand(command):
                 renderEventSearchBox(date, monthCalendar, EVENTS[date][:], CMD_WIDTH, CMD_HEIGHT)
             else:
                 renderError(CMD_WIDTH, CMD_HEIGHT, "No events were found on this day.")
+                return None
+
+        elif delete is not None:
+            try:
+                date = list(map(int, delete[0].split("-")))                
+                if len(date) != 3:
+                    renderError(CMD_WIDTH, CMD_HEIGHT, "You have not provided a valid day, month or year.")
+                    return None
+                day, month, year = date               
+                try:
+                    date = datetime.date(year, month, day)
+                except:
+                    renderError(CMD_WIDTH, CMD_HEIGHT, "Your date, like February 30th, is invalid.")
+                    return None
+            except:
+                renderError(CMD_WIDTH, CMD_HEIGHT, "Perhaps you did not use a '-' to seperate the day, month and year?")
+                return None
+            
+            if date in EVENTS.keys():
+                try:
+                    index = int(delete[1])
+                    if not 0 < index < len(EVENTS[date]) + 1:
+                        renderError(CMD_WIDTH, CMD_HEIGHT, "Your index must be in between 0 and " + str(len(EVENTS[date] + 1)))
+                        return None
+                except:
+                    renderError(CMD_WIDTH, CMD_HEIGHT, "Please enter a valid numerical character.")
+                    return None
+                EVENTS[date].pop(index - 1)
+                with open("events.pkl", "wb") as f:
+                    pickle.dump(EVENTS, f)
+            else:
+                renderError(CMD_WIDTH, CMD_HEIGHT, "There are no events on this day.")
                 return None
 
     elif command["subcommand"] == "exit":
